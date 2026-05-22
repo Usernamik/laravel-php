@@ -13,20 +13,22 @@ class UsersTableSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        DB::table('users')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
         $data = [
             [
                 'name' => 'Невідомий автор',
                 'email' => 'author_unknown@g.g',
-                'password' => bcrypt(Str::random(16)), // password
+                'password' => bcrypt(Str::random(16)),
             ],
             [
                 'name' => 'Автор',
                 'email' => 'author1@g.g',
-                'password' => bcrypt('123123'), // password 123123
+                'password' => bcrypt('123123'),
             ],
         ];
         DB::table('users')->insert($data);
-
 
     }
 }

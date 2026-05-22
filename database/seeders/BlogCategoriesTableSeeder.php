@@ -2,19 +2,19 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 class BlogCategoriesTableSeeder extends Seeder
 {
-
     public function run(): void
     {
-        $this->call(UsersTableSeeder::class);
-        $this->call(BlogCategoriesTableSeeder::class);
-        \App\Models\BlogPost::factory(100)->create();
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        DB::table('blog_categories')->truncate();
+        DB::table('blog_posts')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
         $categories = [];
 
         $cName = 'Без категорії';
