@@ -1,11 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Blog\Admin;
+namespace App\Http\Controllers\Api\Blog\Admin;
 
 //use App\Http\Controllers\Controller;
 use App\Models\BlogCategory;
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Str;
+use App\Http\Controllers\Blog\Admin\BaseController;
+use App\Http\Requests\BlogCategoryUpdateRequest;
+use App\Http\Requests\BlogCategoryCreateRequest;
 
 class CategoryController extends BaseController
 {
@@ -16,26 +19,25 @@ class CategoryController extends BaseController
         return $paginator;
     }
 
-    public function store(Request $request)
-    {
-        $data = $request->all();
-
+    public function store(BlogCategoryCreateRequest $request)
+    {$data = $request->input();
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['title']);
         }
 
-        $item = new BlogCategory($data);
+        $item = (new BlogCategory())->create($data);
 
-        $result = $item->save();
-
-        if ($result) {
-            return ['success' => 'Успішно збережено'];
+        if ($item) {
+            return [
+                'success' => true,
+                'message' => 'Успішно збережено'
+            ];
         } else {
-            return ['msg' => 'Помилка збереження'];
+            return ['message' => 'Помилка збереження'];
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(BlogCategoryUpdateRequest $request, $id)
     {
         $item = BlogCategory::find($id);
 
