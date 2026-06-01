@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Blog\Admin;
 
 //use App\Http\Controllers\Controller;
 use App\Models\BlogCategory;
-
+use App\Repositories\BlogCategoryRepository;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Blog\Admin\BaseController;
 use App\Http\Requests\BlogCategoryUpdateRequest;
@@ -12,9 +12,14 @@ use App\Http\Requests\BlogCategoryCreateRequest;
 
 class CategoryController extends BaseController
 {
+    public function __construct(private BlogCategoryRepository $blogCategoryRepository)
+    {
+        //parent::__construct();
+    }
     public function index()
     {
-        $paginator = BlogCategory::paginate(5);
+        //$paginator = BlogCategory::paginate(5);
+        $paginator = $this->blogCategoryRepository->getAllWithPaginate(5);
 
         return $paginator;
     }
@@ -39,7 +44,7 @@ class CategoryController extends BaseController
 
     public function update(BlogCategoryUpdateRequest $request, $id)
     {
-        $item = BlogCategory::find($id);
+        $this->blogCategoryRepository->getEdit($id);
 
         if (empty($item)) {
             return back()
@@ -60,5 +65,17 @@ class CategoryController extends BaseController
         } else {
             return ['msg' => 'Помилка збереження'];
         }
+
+    }
+    public function getAllWithPaginate($perPage = null)
+    {
+        $columns = ['id', 'title', 'parent_id'];
+
+        $result = $this
+            ->startConditions()
+            ->select($columns)
+            ->paginate($perPage);
+
+        return $result;
     }
 }
