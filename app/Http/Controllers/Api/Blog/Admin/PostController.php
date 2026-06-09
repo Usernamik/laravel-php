@@ -6,6 +6,8 @@ use App\Repositories\BlogPostRepository;
 use App\Repositories\BlogCategoryRepository;
 use App\Http\Requests\BlogPostUpdateRequest;
 use Illuminate\Http\Request;
+use App\Models\BlogPost;
+use App\Http\Requests\BlogPostCreateRequest;
 
 
 
@@ -26,10 +28,19 @@ class PostController extends BaseController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+
+        public function store(BlogPostCreateRequest $request)
     {
-        //
+        $data = $request->input();
+        $item = (new BlogPost())->create($data);
+
+        if ($item) {
+            return ['success' => 'Успішно збережено'];
+        } else {
+            return ['msg' => 'Помилка збереження'];
+        }
     }
+
 
     /**
      * Display the specified resource.
@@ -70,8 +81,16 @@ class PostController extends BaseController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+
+        public function destroy(string $id)
     {
-        //
+        $result = BlogPost::destroy($id);
+
+        if ($result) {
+            return ['message' => 'Запис успішно видалено'];
+        } else {
+            return ['message' => 'Помилка видалення'];
+        }
     }
+
 }

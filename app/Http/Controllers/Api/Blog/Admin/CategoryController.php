@@ -2,32 +2,30 @@
 
 namespace App\Http\Controllers\Api\Blog\Admin;
 
-//use App\Http\Controllers\Controller;
+use App\Http\Controllers\Controller;
 use App\Models\BlogCategory;
 use App\Repositories\BlogCategoryRepository;
-use Illuminate\Support\Str;
-use App\Http\Controllers\Blog\Admin\BaseController;
 use App\Http\Requests\BlogCategoryUpdateRequest;
 use App\Http\Requests\BlogCategoryCreateRequest;
 
-class CategoryController extends BaseController
+class CategoryController extends Controller
 {
-    public function __construct(private BlogCategoryRepository $blogCategoryRepository)
+    private BlogCategoryRepository $blogCategoryRepository;
+
+    public function __construct(BlogCategoryRepository $blogCategoryRepository)
     {
-        //parent::__construct();
+        $this->blogCategoryRepository = $blogCategoryRepository;
     }
+
     public function index()
     {
-        //$paginator = BlogCategory::paginate(5);
         $paginator = $this->blogCategoryRepository->getAllWithPaginate(5);
-
         return $paginator;
     }
 
     public function store(BlogCategoryCreateRequest $request)
-    {$data = $request->input();
-
-
+    {
+        $data = $request->input();
         $item = (new BlogCategory())->create($data);
 
         if ($item) {
@@ -42,18 +40,13 @@ class CategoryController extends BaseController
 
     public function update(BlogCategoryUpdateRequest $request, $id)
     {
-        $this->blogCategoryRepository->getEdit($id);
+        $item = $this->blogCategoryRepository->getEdit($id);
 
         if (empty($item)) {
-            return back()
-                ->withErrors(['msg' => "Запис id=[{$id}] не знайдено"])
-                ->withInput();
+            return ['message' => "Запис id=[{$id}] не знайдено"];
         }
 
         $data = $request->all();
-
-
-
         $result = $item->update($data);
 
         if ($result) {
@@ -61,17 +54,16 @@ class CategoryController extends BaseController
         } else {
             return ['msg' => 'Помилка збереження'];
         }
-
     }
-    public function getAllWithPaginate($perPage = null)
+
+    public function destroy(string $id)
     {
-        $columns = ['id', 'title', 'parent_id'];
+        $result = BlogCategory::destroy($id);
 
-        $result = $this
-            ->startConditions()
-            ->select($columns)
-            ->paginate($perPage);
-
-        return $result;
+        if ($result) {
+            return ['message' => 'Запис успішно видалено'];
+        } else {
+            return ['message' => 'Помилка видалення'];
+        }
     }
 }
