@@ -8,11 +8,15 @@ use App\Http\Requests\BlogPostUpdateRequest;
 use Illuminate\Http\Request;
 use App\Models\BlogPost;
 use App\Http\Requests\BlogPostCreateRequest;
+use App\Jobs\BlogPostAfterCreateJob;
+use App\Jobs\BlogPostAfterDeleteJob;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 
 
 class PostController extends BaseController
 {
+    use DispatchesJobs;
     public function __construct(
         private BlogPostRepository $blogPostRepository,
         private BlogCategoryRepository $blogCategoryRepository
@@ -35,9 +39,12 @@ class PostController extends BaseController
         $item = (new BlogPost())->create($data);
 
         if ($item) {
+            $job = new BlogPostAfterCreateJob($item);
+            $this->dispatch($job);
             return ['success' => 'Успішно збережено'];
         } else {
             return ['msg' => 'Помилка збереження'];
+
         }
     }
 
@@ -82,15 +89,27 @@ class PostController extends BaseController
      * Remove the specified resource from storage.
      */
 
-        public function destroy(string $id)
+    public function destroy(string $id)
     {
-        $result = BlogPost::destroy($id);
+        $post = BlogPost::find($id);
+
+        if (!$post) {
+            return ['message' => 'Запис не знайдено'];
+        }
+
+        $result = $post->delete();
 
         if ($result) {
+            BlogPostAfterDeleteJob::dispatch($id);
             return ['message' => 'Запис успішно видалено'];
         } else {
             return ['message' => 'Помилка видалення'];
         }
     }
+
+
+
+
+
 
 }
