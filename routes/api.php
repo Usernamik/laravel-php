@@ -31,4 +31,10 @@
         Route::apiResource('posts', AdminPostController::class)
             ->except(['show'])
             ->names('blog.admin.posts');
+
+
     });
+
+    // ЦІ МАРШРУТИ - ПОЗА ГРУПОЮ
+    Route::get('digging_deeper/process-video', [\App\Http\Controllers\DiggingDeeperController::class, 'processVideo']);
+    Route::get('digging_deeper/prepare-catalog', [\App\Http\Controllers\DiggingDeeperController::class, 'prepareCatalog']);
